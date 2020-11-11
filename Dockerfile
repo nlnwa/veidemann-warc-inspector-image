@@ -5,6 +5,7 @@ FROM norsknettarkiv/jhove-warc-report-parser:0.1.0 as jwrp
 FROM python:3.9-alpine
 
 RUN apk add --no-cache jq
+RUN apk add --no-cache curl
 
 RUN pip install warctools
 

@@ -12,4 +12,6 @@ COPY --from=gowarc /warc /usr/local/bin/warc
 
 COPY --from=jwrp /jhove-warc-report-parser /usr/local/bin/jhove-warc-report-parser
 
+WORKDIR /veidemann
+
 CMD ["/bin/sh"]

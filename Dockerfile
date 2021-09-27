@@ -3,9 +3,9 @@ FROM golang:alpine as gowarc
 ARG VERSION=v1.0.0-alpha.12
 
 RUN apk add --no-cache git
-RUN git clone https://github.com/nlnwa/gowarc -b ${VERSION} --depth=1 src/gowarc
+RUN git clone https://github.com/nlnwa/gowarc -b ${VERSION} --depth=1 /go/src/gowarc
 WORKDIR /go/src/gowarc
-RUN go install ./cmd/...
+RUN GOPROXY=proxy.golang.org go install ./cmd/warc
 
 
 FROM norsknettarkiv/jhove-warc-report-parser:0.1.0 as jwrp
@@ -14,9 +14,10 @@ FROM norsknettarkiv/jhove-warc-report-parser:0.1.0 as jwrp
 FROM golang:alpine as warchaeology
 
 RUN apk add --no-cache git
-RUN git clone https://github.com/nlnwa/warchaeology --depth=1 src/warchaeology
+
+RUN git clone https://github.com/nlnwa/warchaeology --depth=1 /go/src/warchaeology
 WORKDIR /go/src/warchaeology
-RUN go install ./cmd/...
+RUN GOPROXY=proxy.golang.org go install
 
 
 FROM python:3.9-alpine

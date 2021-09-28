@@ -19,7 +19,7 @@ COPY --from=gowarc /go/bin/warc /usr/local/bin/warc
 
 COPY --from=jwrp /jhove-warc-report-parser /usr/local/bin/jhove-warc-report-parser
 
-COPY --from=warchaeology /go/bin/warchaeology /usr/local/bin/warchaeology
+COPY --from=warchaeology /go/bin/warchaeology /usr/local/bin/warc
 
 WORKDIR /veidemann
 

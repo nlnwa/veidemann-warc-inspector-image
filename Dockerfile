@@ -1,6 +1,6 @@
 FROM busybox as warchaeology
 
-ARG VERSION=0.1.0-RC.2
+ARG VERSION=0.1.0-RC.6
 RUN wget -O warc https://github.com/nlnwa/warchaeology/releases/download/v${VERSION}/warc_linux_x86_64 \
     && chmod +x warc
 

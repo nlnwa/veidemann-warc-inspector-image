@@ -1,14 +1,15 @@
 FROM busybox as warchaeology
 
-ARG VERSION=0.1.0-RC.6
+ARG VERSION=0.1.1
 RUN wget -O warc https://github.com/nlnwa/warchaeology/releases/download/v${VERSION}/warc_linux_x86_64 \
     && chmod +x warc
 
 
-FROM norsknettarkiv/jhove-warc-report-parser:0.1.0 as jwrp
+FROM ghcr.io/nlnwa/jhove-warc-report-parser:0.1.2 as jwrp
 
 
-FROM python:3.10-alpine
+FROM python:3.11-alpine
+
 LABEL maintainer="marius.beck@nb.no"
 
 RUN apk add --no-cache jq curl gettext git tree

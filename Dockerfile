@@ -1,5 +1,5 @@
 FROM busybox as warchaeology
-RUN wget -O - https://github.com/nlnwa/warchaeology/releases/download/v0.4.1/warchaeology_Linux_x86_64.tar.gz | tar xvz && chmod +x warc
+RUN wget -O - https://github.com/nlnwa/warchaeology/releases/download/v1.1.0/warchaeology_Linux_x86_64.tar.gz | tar xvz && chmod +x warc
 
 
 FROM ghcr.io/nlnwa/jhove-warc-report-parser:0.1.2 as jwrp

@@ -12,11 +12,48 @@ FROM python:3.12-slim-bookworm
 
 LABEL maintainer="marius.beck@nb.no"
 
-RUN apk add --no-cache jq curl gettext git tree
-RUN pip install warctools
-COPY --from=warchaeology /warc /usr/local/bin/warc
-COPY --from=jwrp /jhove-warc-report-parser /usr/local/bin/jhove-warc-report-parser
+# Install dependencies
+RUN apt-get update -y \
+&& apt-get install -y yq xq jq gettext tree bash-completion \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
 
-WORKDIR /veidemann
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash nonroot
+USER nonroot
+WORKDIR /home/nonroot
+RUN echo "\n\
+echo \n\
+echo '                                  :-==-.'\n\
+echo '                                .%@@@@@#='\n\ 
+echo '                                #@@@@+'\n\
+echo '                                @@@@#'\n\
+echo '                                %@@@#'\n\ 
+echo '                               -@@@@@.'\n\ 
+echo '                            :+%@@@@@@*'\n\
+echo '                        -+%@@@@@@@@@@@'\n\
+echo '                    :+%@@@@@@@@@@@@@@@-'\n\
+echo '                 -*@@@@@@@@@@@@@#.@@@@:'\n\
+echo '              -*@@@@@@@@@@@@@@%= :@@@%'\n\
+echo '           :*@@@@@@@@@@@@@@%+: .+@@@%.'\n\
+echo '        .=%@@@@@@@@@@@%*=: .-+%@@@@*'\n\
+echo '    .-*%@@@@@@@@##*+===+*#@@@@@@@+.'\n\  
+echo ' .+%@%%%@@@@@@@@@@@@@@@@@@@@@@*-'\n\ 
+echo '          :=+*#%@@@@@@@@@@#-.'\n\    
+echo '                      .=#@@+'\n\
+echo \
+" >> /home/nonroot/.bashrc
 
-CMD ["/bin/sh"]
+# Set the locale (needed for python)
+ENV LANG=C.UTF-8
+# Add local bin to path
+ENV PATH=/home/nonroot/.local/bin:$PATH
+
+# Install warctools
+RUN pip --no-cache-dir install --user warctools
+
+# Install warchaeology
+COPY --from=warchaeology /warc .local/bin/warc
+COPY --from=warchaeology /completions/warc.bash .local/share/bash-completion/completions/warc
+
+ENTRYPOINT ["/bin/bash"]

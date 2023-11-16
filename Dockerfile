@@ -1,8 +1,11 @@
 FROM busybox as warchaeology
-RUN wget -O - https://github.com/nlnwa/warchaeology/releases/download/v1.1.0/warchaeology_Linux_x86_64.tar.gz | tar xvz && chmod +x warc
 
+ARG WARCHAEOLOGY_VERSION=1.1.0
 
-FROM ghcr.io/nlnwa/jhove-warc-report-parser:0.1.2 as jwrp
+RUN wget https://github.com/nlnwa/warchaeology/releases/download/v${WARCHAEOLOGY_VERSION}/checksums.txt
+RUN wget https://github.com/nlnwa/warchaeology/releases/download/v${WARCHAEOLOGY_VERSION}/warchaeology_Linux_x86_64.tar.gz
+RUN grep warchaeology_Linux_x86_64.tar.gz < checksums.txt | sha256sum -c -
+RUN tar xvzf warchaeology_Linux_x86_64.tar.gz && chmod +x warc
 
 
 FROM python:3.11-alpine

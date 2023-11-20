@@ -1,18 +1,59 @@
 FROM busybox as warchaeology
-RUN wget -O - https://github.com/nlnwa/warchaeology/releases/download/v1.1.0/warchaeology_Linux_x86_64.tar.gz | tar xvz && chmod +x warc
+
+ARG WARCHAEOLOGY_VERSION=1.1.0
+
+RUN wget https://github.com/nlnwa/warchaeology/releases/download/v${WARCHAEOLOGY_VERSION}/checksums.txt
+RUN wget https://github.com/nlnwa/warchaeology/releases/download/v${WARCHAEOLOGY_VERSION}/warchaeology_Linux_x86_64.tar.gz
+RUN grep warchaeology_Linux_x86_64.tar.gz < checksums.txt | sha256sum -c -
+RUN tar xvzf warchaeology_Linux_x86_64.tar.gz && chmod +x warc
 
 
-FROM ghcr.io/nlnwa/jhove-warc-report-parser:0.1.2 as jwrp
+FROM python:3.12-slim-bookworm
 
-
-FROM python:3.11-alpine
 LABEL maintainer="marius.beck@nb.no"
 
-RUN apk add --no-cache jq curl gettext git tree
-RUN pip install warctools
-COPY --from=warchaeology /warc /usr/local/bin/warc
-COPY --from=jwrp /jhove-warc-report-parser /usr/local/bin/jhove-warc-report-parser
+# Install dependencies
+RUN apt-get update -y \
+&& apt-get install -y yq xq jq gettext tree bash-completion \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
 
-WORKDIR /veidemann
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash nonroot
+USER nonroot
+WORKDIR /home/nonroot
+RUN echo "\n\
+echo \n\
+echo '                                  :-==-.'\n\
+echo '                                .%@@@@@#='\n\ 
+echo '                                #@@@@+'\n\
+echo '                                @@@@#'\n\
+echo '                                %@@@#'\n\ 
+echo '                               -@@@@@.'\n\ 
+echo '                            :+%@@@@@@*'\n\
+echo '                        -+%@@@@@@@@@@@'\n\
+echo '                    :+%@@@@@@@@@@@@@@@-'\n\
+echo '                 -*@@@@@@@@@@@@@#.@@@@:'\n\
+echo '              -*@@@@@@@@@@@@@@%= :@@@%'\n\
+echo '           :*@@@@@@@@@@@@@@%+: .+@@@%.'\n\
+echo '        .=%@@@@@@@@@@@%*=: .-+%@@@@*'\n\
+echo '    .-*%@@@@@@@@##*+===+*#@@@@@@@+.'\n\  
+echo ' .+%@%%%@@@@@@@@@@@@@@@@@@@@@@*-'\n\ 
+echo '          :=+*#%@@@@@@@@@@#-.'\n\    
+echo '                      .=#@@+'\n\
+echo \
+" >> /home/nonroot/.bashrc
 
-CMD ["/bin/sh"]
+# Set the locale (needed for python)
+ENV LANG=C.UTF-8
+# Add local bin to path
+ENV PATH=/home/nonroot/.local/bin:$PATH
+
+# Install warctools
+RUN pip --no-cache-dir install --user warctools
+
+# Install warchaeology
+COPY --from=warchaeology /warc .local/bin/warc
+COPY --from=warchaeology /completions/warc.bash .local/share/bash-completion/completions/warc
+
+ENTRYPOINT ["/bin/bash"]

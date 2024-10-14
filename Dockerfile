@@ -8,7 +8,7 @@ RUN grep warchaeology_Linux_x86_64.tar.gz < checksums.txt | sha256sum -c -
 RUN tar xvzf warchaeology_Linux_x86_64.tar.gz && chmod +x warc
 
 
-FROM python:3.12-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 LABEL maintainer="marius.beck@nb.no"
 
